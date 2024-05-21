@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import ExpenseList from './components/ExpenseList';
+import AddExpense from './components/AddExpense';
+import EditExpense from './components/EditExpense';
+import CategoryList from './components/CategoryList';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div>
+        <Switch>
+          <Route path="/" exact component={ExpenseList} />
+          <Route path="/add-expense" component={AddExpense} />
+          <Route path="/edit-expense/:id" component={EditExpense} />
+          <Route path="/categories" component={CategoryList} />
+          <Redirect to="/" />
+        </Switch>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
