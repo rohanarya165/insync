@@ -1,85 +1,140 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { useSelector, useDispatch } from 'react-redux'
-import { selectCountList } from '../feature/allExpancesList/allExpancesListSlice';
-
-interface Category {
-    id: number;
-    name: string;
-}
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  expancesList,
+  selectCountList,
+} from "../feature/allExpancesList/allExpancesListSlice";
+import { selectCategoryList } from "../feature/allCategoryList/allCategoryListSlice";
+import { Button } from "@mui/material";
+import moment from "moment";
 
 const AddExpense: React.FC = () => {
-    const [type, setType] = useState<string>('cash-out');
-    const [category, setCategory] = useState<string>('');
-    const [amount, setAmount] = useState<string>('');
-    const [date, setDate] = useState<Date>(new Date());
-    const [description, setDescription] = useState<string>('');
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [buttonClicked, setButtonClicked] = useState("")
-    const navigate = useHistory();
-    const count = useSelector(selectCountList)
+  const [category, setCategory] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [date, setDate] = useState<Date>(new Date());
+  const [description, setDescription] = useState<string>("");
+  const [buttonClicked, setButtonClicked] = useState("cash-in");
+  const navigate = useHistory();
+  const count = useSelector(selectCountList);
+  const catCount = useSelector(selectCategoryList);
+  const dispatch = useDispatch();
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            const data: Category[] = await fetch('/api/categories').then(res => res.json());
-            setCategories(data);
-        };
-        fetchCategories();
-    }, []);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const newExpense = { type, category, amount: parseFloat(amount), date, description };
-
-        await fetch('/api/expenses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newExpense),
-        });
-
-        navigate.push('/');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newExpense = {
+      id: Date.now(),
+      type: buttonClicked,
+      category,
+        amount: buttonClicked==="cash-out"? -amount  : Number( amount),
+      date: moment(date).format("YYYY-MM-DD"),
+      description,
     };
+    dispatch(expancesList([...count, newExpense]));
+    navigate.push("/");
+  };
 
-    return (
-        <div>
-            <h1></h1>
-            <div className="p-6 text-center bg-blue-300 relative">
-                <h1 className="text-[20px]">Add Expense</h1>
+  return (
+    <div>
+      <div className="p-6 text-center bg-blue-300 relative">
+        <h1 className="text-[20px]">Add Expense</h1>
+      </div>
+      <div className="p-16">
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>
+              Type:
+              <div className="flex w-full rounded-md overflow-hidden cursor-pointer m-2">
+                <div
+                  className={`w-1/2 text-center p-2 ${
+                    buttonClicked === "cash-in"
+                      ? "bg-blue-500 text-white"
+                      : "bg-blue-300"
+                  }`}
+                  onClick={() => {
+                    setButtonClicked("cash-in");
+                  }}
+                >
+                  Cash-In
+                </div>
+                <div
+                  className={`w-1/2 text-center p-2 ${
+                    buttonClicked === "cash-out"
+                      ? "bg-blue-500 text-white"
+                      : "bg-blue-300"
+                  }`}
+                  onClick={() => {
+                    setButtonClicked("cash-out");
+                  }}
+                >
+                  Cash-Out
+                </div>
+              </div>
+            </label>
+          </div>
+          <div className="flex justify-center w-full">
+            <div>
+              <div className="p-4 ">
+                <label>
+                  Category:
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    {catCount.map((cat) => (
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="p-4 ">
+                <label>
+                  Amount:
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="p-4 ">
+                <label>
+                  Date:
+                  <DatePicker
+                    selected={date}
+                    onChange={(date: Date) => setDate(date as Date)}
+                  />
+                </label>
+              </div>
+              <div className="p-4 ">
+                <label>
+                  Description:
+                  <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </label>
+              </div>
             </div>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Type:
-                    <select value={type} onChange={(e) => setType(e.target.value)}>
-                        <option value="cash-in">Cash In</option>
-                        <option value="cash-out">Cash Out</option>
-                    </select>
-                </label>
-                <label>
-                    Category:
-                    <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                        {categories.map((cat) => (
-                            <option key={cat.id} value={cat.name}>{cat.name}</option>
-                        ))}
-                    </select>
-                </label>
-                <label>
-                    Amount:
-                    <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
-                </label>
-                <label>
-                    Date:
-                    <DatePicker selected={date} onChange={(date : Date) => setDate(date as Date)} />
-                </label>
-                <label>
-                    Description:
-                    <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
-                </label>
-                <button type="submit">Add Expense</button>
-            </form>
-        </div>
-    );
+          </div>
+          <div className="mt-8 flex justify-center w-full">
+            <Button
+              type="submit"
+              sx={{ textTransform: "none" }}
+              variant="contained"
+            >
+              Add Expense
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default AddExpense;

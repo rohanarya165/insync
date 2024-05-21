@@ -1,109 +1,167 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-
-interface Expense {
-    id: number;
-    type: string;
-    category: string;
-    amount: number;
-    date: string;
-    description: string;
-}
-
-interface Category {
-    id: number;
-    name: string;
-}
+import React, { useState, useEffect} from "react";
+import { useParams, useHistory } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  expancesList,
+  selectCountList,
+} from "../feature/allExpancesList/allExpancesListSlice";
+import { selectCategoryList } from "../feature/allCategoryList/allCategoryListSlice";
+import moment from "moment";
+import { Button } from "@mui/material";
 
 const EditExpense: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useHistory();
-    const [expense, setExpense] = useState<Expense | null>(null);
-    const [categories, setCategories] = useState<Category[]>([]);
+  const { id } = useParams<{ id: string }>();
+  const [category, setCategory] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [date, setDate] = useState<Date>(new Date());
+  const [description, setDescription] = useState<string>("");
+  const [buttonClicked, setButtonClicked] = useState("cash-in");
+  const navigate = useHistory();
+  const count = useSelector(selectCountList);
+  const catCount = useSelector(selectCategoryList);
+  const dispatch = useDispatch();
 
-    useEffect(() => {
-        const fetchExpense = async () => {
-            const data: Expense = await fetch(`/api/expenses/${id}`).then(res => res.json());
-            setExpense(data);
-        };
-        fetchExpense();
+  useEffect(() => {
+    count.map((item: any) => {
+      if (item.id === Number(id)) {
+        setCategory(item.category);
+        setAmount(item.amount.toString());
+        setDate(new Date(item.date));
+        setDescription(item.description);
+        setButtonClicked(item.type);
+      }
+    });
+  }, []);
 
-        const fetchCategories = async () => {
-            const data: Category[] = await fetch('/api/categories').then(res => res.json());
-            setCategories(data);
-        };
-        fetchCategories();
-    }, [id]);
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setExpense(prevState => prevState ? { ...prevState, [name]: value } : null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newExpense = {
+      id,
+      type: buttonClicked,
+      category,
+      amount: parseFloat(amount),
+      date: moment(date).format("YYYY-MM-DD"),
+      description,
     };
+    let newData = count.filter((cat) => cat.id !== Number(id));
+    dispatch(expancesList([...newData, newExpense]));
+    navigate.push("/");
+  };
 
-    const handleDateChange = (date: Date) => {
-        setExpense(prevState => prevState ? { ...prevState, date: date.toISOString() } : null);
-    };
+  const handleDelete = async () => {
+    dispatch(expancesList(count.filter((cat) => cat.id !== Number(id))));
+    navigate.push("/");
+  };
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        if (expense) {
-            await fetch(`/api/expenses/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(expense),
-            });
-            navigate.push('/');
-        }
-    };
-
-    const handleDelete = async () => {
-        await fetch(`/api/expenses/${id}`, {
-            method: 'DELETE',
-        });
-        navigate.push('/');
-    };
-
-    if (!expense) return <div>Loading...</div>;
-
-    return (
-        <div>
-            <h1>Edit Expense</h1>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Type:
-                    <select name="type" value={expense.type} onChange={handleChange}>
-                        <option value="cash-in">Cash In</option>
-                        <option value="cash-out">Cash Out</option>
-                    </select>
-                </label>
-                <label>
-                    Category:
-                    <select name="category" value={expense.category} onChange={handleChange}>
-                        {categories.map((cat) => (
-                            <option key={cat.id} value={cat.name}>{cat.name}</option>
-                        ))}
-                    </select>
-                </label>
-                <label>
-                    Amount:
-                    <input name="amount" type="number" value={expense.amount} onChange={handleChange} />
-                </label>
-                <label>
-                    Date:
-                    <DatePicker selected={new Date(expense.date)} onChange={handleDateChange} />
-                </label>
-                <label>
-                    Description:
-                    <input name="description" type="text" value={expense.description} onChange={handleChange} />
-                </label>
-                <button type="submit">Save</button>
-                <button type="button" onClick={() => navigate.push('/')}>Cancel</button>
-                <button type="button" onClick={handleDelete}>Delete</button>
-            </form>
+  return (
+    <div>
+      <div className="p-6 text-center bg-blue-300 relative">
+        <h1 className="text-[20px]">Add Expense</h1>
+        <div
+          onClick={handleDelete}
+          className="absolute right-[18px] top-[18px]"
+        >
+          <Button sx={{ textTransform: "none" }} variant="contained">
+            Remove
+          </Button>
         </div>
-    );
+      </div>
+      <div className="p-16">
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>
+              Type:
+              <div className="flex w-full rounded-md overflow-hidden cursor-pointer m-2">
+                <div
+                  className={`w-1/2 text-center p-2 ${
+                    buttonClicked === "cash-in"
+                      ? "bg-blue-500 text-white"
+                      : "bg-blue-300"
+                  }`}
+                  onClick={() => {
+                    setButtonClicked("cash-in");
+                  }}
+                >
+                  Cash-In
+                </div>
+                <div
+                  className={`w-1/2 text-center p-2 ${
+                    buttonClicked === "cash-out"
+                      ? "bg-blue-500 text-white"
+                      : "bg-blue-300"
+                  }`}
+                  onClick={() => {
+                    setButtonClicked("cash-out");
+                  }}
+                >
+                  Cash-Out
+                </div>
+              </div>
+            </label>
+          </div>
+          <div className="flex justify-center w-full">
+            <div>
+              <div className="p-4 ">
+                <label>
+                  Category:
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    {catCount.map((cat) => (
+                      <option key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="p-4 ">
+                <label>
+                  Amount:
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="p-4 ">
+                <label>
+                  Date:
+                  <DatePicker
+                    selected={date}
+                    onChange={(date: Date) => setDate(date as Date)}
+                  />
+                </label>
+              </div>
+              <div className="p-4 ">
+                <label>
+                  Description:
+                  <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex justify-center w-full">
+            <Button
+              type="submit"
+              sx={{ textTransform: "none" }}
+              variant="contained"
+            >
+              Update Expense
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default EditExpense;

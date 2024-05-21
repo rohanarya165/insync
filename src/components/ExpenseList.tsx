@@ -1,12 +1,10 @@
 import { Button } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import type { RootState } from "../app/store";
-import { useSelector, useDispatch } from "react-redux";
-import { expancesList } from "../feature/allExpancesList/allExpancesListSlice";
+import { useSelector } from "react-redux";
 import { selectCountList } from "../feature/allExpancesList/allExpancesListSlice";
 
-interface Expense {
+export interface Expense {
   id: number;
   type: string;
   category: string;
@@ -19,49 +17,12 @@ interface GroupedExpenses {
   [key: string]: Expense[];
 }
 
-const dummyExpenses: Expense[] = [
-  {
-    id: 1,
-    type: "cash-out",
-    category: "Food",
-    amount: -50,
-    date: "2023-04-15",
-    description: "Groceries",
-  },
-  {
-    id: 2,
-    type: "cash-in",
-    category: "Salary",
-    amount: 2000,
-    date: "2023-04-25",
-    description: "April Salary",
-  },
-  {
-    id: 3,
-    type: "cash-out",
-    category: "Utilities",
-    amount: -100,
-    date: "2023-05-05",
-    description: "Electric Bill",
-  },
-  {
-    id: 4,
-    type: "cash-out",
-    category: "Entertainment",
-    amount: -75,
-    date: "2023-05-12",
-    description: "Movies",
-  },
-];
-
 const ExpenseList: React.FC = () => {
   const [groupedExpenses, setGroupedExpenses] = useState<any>({});
-  const dispatch = useDispatch();
-  dispatch(expancesList(dummyExpenses));
   const count = useSelector(selectCountList);
 
   useEffect(() => {
-      groupByMonth(count);
+    groupByMonth(count);
   }, []);
 
   const groupByMonth = (expenses: Expense[]) => {
@@ -94,16 +55,15 @@ const ExpenseList: React.FC = () => {
         </Link>
       </div>
       {Object.keys(groupedExpenses).length === 0 && <p>No expenses found.</p>}
-      <div className="w-full p-16 flex justify-center gap-10 flex-col">
+      <div className="w-full p-16 flex justify-center gap-10 h-full flex-col">
         {Object.keys(groupedExpenses).map((month) => (
           <div
             key={month}
-            className={`${
-              Number(calculateMonthlyTotal(groupedExpenses[month]).toFixed(2)) >
-              0
+            className={`${Number(calculateMonthlyTotal(groupedExpenses[month]).toFixed(2)) >
+                0
                 ? "text-blue-500"
                 : "text-green-500"
-            }`}
+              }`}
           >
             <div className="flex justify-between border-b-4 p-2 text-[20px]">
               <div>{month}</div>
@@ -131,10 +91,15 @@ const ExpenseList: React.FC = () => {
             </ul>
           </div>
         ))}
-          </div>
-          <div> <Link className="pl-4" to={`/categories`}>
-              Category
-          </Link></div>
+      </div>
+      <div className="flex justify-center">
+        {" "}
+        <Link className="pl-4" to={`/categories`}>
+          <Button sx={{ textTransform: "none" }} variant="contained">
+            Add Category
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };
