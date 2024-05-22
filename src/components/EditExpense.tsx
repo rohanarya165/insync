@@ -75,11 +75,10 @@ const EditExpense: React.FC = () => {
               Type:
               <div className="flex w-full rounded-md overflow-hidden cursor-pointer m-2">
                 <div
-                  className={`w-1/2 text-center p-2 ${
-                    buttonClicked === "cash-in"
+                  className={`w-1/2 text-center p-2 ${buttonClicked === "cash-in"
                       ? "bg-blue-500 text-white"
                       : "bg-blue-300"
-                  }`}
+                    }`}
                   onClick={() => {
                     setButtonClicked("cash-in");
                   }}
@@ -87,11 +86,10 @@ const EditExpense: React.FC = () => {
                   Cash-In
                 </div>
                 <div
-                  className={`w-1/2 text-center p-2 ${
-                    buttonClicked === "cash-out"
+                  className={`w-1/2 text-center p-2 ${buttonClicked === "cash-out"
                       ? "bg-blue-500 text-white"
                       : "bg-blue-300"
-                  }`}
+                    }`}
                   onClick={() => {
                     setButtonClicked("cash-out");
                   }}
@@ -104,11 +102,14 @@ const EditExpense: React.FC = () => {
           <div className="flex justify-center w-full">
             <div>
               <div className="p-4 ">
-                <label>
-                  Category:
+                <label className="flex gap-4 justify-between">
+                  <div>
+                    Category:
+                  </div>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
+                    className="p-2 border mx-4 rounded-md"
                   >
                     {catCount.map((cat) => (
                       <option key={cat.id} value={cat.name}>
@@ -119,29 +120,38 @@ const EditExpense: React.FC = () => {
                 </label>
               </div>
               <div className="p-4 ">
-                <label>
-                  Amount:
+                <label className="flex gap-4 justify-between">
+                  <div>
+                    Amount:
+                  </div>
                   <input
                     type="number"
+                    className="p-2 border mx-4 rounded-md"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                   />
                 </label>
               </div>
               <div className="p-4 ">
-                <label>
-                  Date:
+                <label className="flex gap-4 justify-between">
+                  <div>
+                    Date:
+                  </div>
                   <DatePicker
+                    className="p-2 border mx-4 rounded-md"
                     selected={date}
                     onChange={(date: Date) => setDate(date as Date)}
                   />
                 </label>
               </div>
               <div className="p-4 ">
-                <label>
-                  Description:
+                <label className="flex gap-4 justify-between">
+                  <div>
+                    Description:
+                  </div>
                   <input
                     type="text"
+                    className="p-2 border mx-4 rounded-md"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -155,7 +165,7 @@ const EditExpense: React.FC = () => {
               sx={{ textTransform: "none" }}
               variant="contained"
             >
-              Update Expense
+              Add Expense
             </Button>
           </div>
         </form>

@@ -77,11 +77,14 @@ const AddExpense: React.FC = () => {
           <div className="flex justify-center w-full">
             <div>
               <div className="p-4 ">
-                <label>
+                <label className="flex gap-4 justify-between">
+                  <div>
                   Category:
+                  </div>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
+                    className="p-2 border mx-4 rounded-md"
                   >
                     {catCount.map((cat) => (
                       <option key={cat.id} value={cat.name}>
@@ -92,29 +95,38 @@ const AddExpense: React.FC = () => {
                 </label>
               </div>
               <div className="p-4 ">
-                <label>
+                <label className="flex gap-4 justify-between">
+                  <div>
                   Amount:
+                  </div>
                   <input
                     type="number"
+                    className="p-2 border mx-4 rounded-md"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                   />
                 </label>
               </div>
               <div className="p-4 ">
-                <label>
+                <label className="flex gap-4 justify-between">
+                  <div>
                   Date:
+                  </div>
                   <DatePicker
+                    className="p-2 border mx-4 rounded-md"
                     selected={date}
                     onChange={(date: Date) => setDate(date as Date)}
                   />
                 </label>
               </div>
               <div className="p-4 ">
-                <label>
-                  Description:
+                <label className="flex gap-4 justify-between">
+                  <div>
+                    Description:
+                  </div>
                   <input
                     type="text"
+                    className="p-2 border mx-4 rounded-md"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
