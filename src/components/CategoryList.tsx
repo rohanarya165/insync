@@ -70,7 +70,7 @@ const CategoryList: React.FC = () => {
 
   return (
     <div>
-      <div className="p-6 text-center bg-blue-300 relative">
+      <div className="p-6  text-center bg-blue-300 relative">
         <h1 className="text-[20px]"> Category List</h1>
         <Link to="/" className="absolute right-[18px] top-[18px]">
           <Button sx={{ textTransform: "none" }} variant="contained">
